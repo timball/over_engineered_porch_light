@@ -1,0 +1,30 @@
+# conf.yaml 
+
+mac_addr: <your switchmate mac_addr here>
+timeout: 10
+
+# where you light is located
+home:
+    lat: '38.889484'
+    lon: '-77.035278'
+    elev: 9
+    
+# assume rpi is in utc or some other horrid time zone, 
+# but off_time is in your localtime 
+local_tz: "US/Eastern"
+off_time: "22:00:00"
+
+# the time when the scheduler runs sadly this is in 
+# the time zone of the rpi bc god hates everything
+sched_time: "3:14"
+
+# this roughly translates to when you want the lights to turn on and off 
+horizons:
+  morn_twil: -12
+  post_sunl:   1
+  aft_twil:    6
+
+# some test config setting
+debug: False
+TEST_MAX_RAND: 20
+TEST_RAND_PAD: 5
