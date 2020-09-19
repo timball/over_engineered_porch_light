@@ -7,7 +7,7 @@ Sun 13 Sep 16:41:07 BST 2020
 """
 
 import sys, os, logging
-from elevate import elevate
+#from elevate import elevate
 import bluepy.btle as btle
 import enum
 

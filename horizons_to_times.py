@@ -20,7 +20,7 @@ def off_time_in_utc(offtime, local_tz):
         output:
             datetime of coverted offtime to utc
     """
-    off_hour,off_minute,off_second = conf['off_time'].split(':')
+    off_hour,off_minute,off_second = offtime.split(':')
 
     now = datetime.now()
     local = pytz.timezone(local_tz)
