@@ -92,6 +92,7 @@ class LightMachine(Machine, Switch):
 
     def __init__(self, conf):
         self.conf = conf
+        self.mystery_state = Light.UNKN
 
         states = [Light.ON, Light.OFF, Light.BAT]
         Machine.__init__(self, states=states, initial=Light.OFF)
@@ -117,7 +118,7 @@ class LightMachine(Machine, Switch):
 
             if verify_table[status] == self.state:
                 logging.info("status is ✅ {status}")
-                self.mystery_state =  status
+                self.mystery_state =  verify_table['status']
                 ret = True
             elif verify_table[status] == Light.UNKN:
                 logging.info("status is ❓")
