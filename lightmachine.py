@@ -118,7 +118,7 @@ class LightMachine(Machine, Switch):
 
             if verify_table[status] == self.state:
                 logging.info("status is ✅ {status}")
-                self.mystery_state =  verify_table['status']
+                self.mystery_state =  verify_table[status]
                 ret = True
             elif verify_table[status] == Light.UNKN:
                 logging.info("status is ❓")
