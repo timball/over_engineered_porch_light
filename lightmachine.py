@@ -112,7 +112,7 @@ class LightMachine(Machine, Switch):
                         'off': Light.OFF,
                         False: Light.UNKN}
 
-        if self.mystery_state = Light.UNKN:
+        if self.mystery_state == Light.UNKN:
             status = self.status()
 
             if verify_table[status] == self.state:
