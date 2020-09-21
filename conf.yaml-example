@@ -18,6 +18,9 @@ off_time: "22:00:00"
 # the time zone of the rpi bc god hates everything
 sched_time: "3:14"
 
+# verify frequency ... args to a cron minute watch
+verify_cron = "*/15"
+
 # this roughly translates to when you want the lights to turn on and off 
 horizons:
   morn_twil: -12

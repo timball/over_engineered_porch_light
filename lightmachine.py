@@ -102,6 +102,7 @@ class LightMachine(Machine, Switch):
 
 
     def check_status(self):
+        self.mystery_state = Light.UNKN
         logging.warning(f"status: {self.state}")
 
     def verify_state(self):
@@ -110,18 +111,26 @@ class LightMachine(Machine, Switch):
         verify_table = {'on': Light.ON,
                         'off': Light.OFF,
                         False: Light.UNKN}
-        status = self.status()
 
-        if verify_table[status] == self.state:
-            logging.info("status is ✅")
+        if self.mystery_state = Light.UNKN:
+            status = self.status()
+
+            if verify_table[status] == self.state:
+                logging.info("status is ✅")
+                self.mystery_state =  status
+                ret = True
+            elif verify_table[status] == Light.UNKN:
+                logging.info("status is ❓")
+                self.mystery_state =  Light.UNKN
+                ret = False
+            elif verify_table[status] != self.state:
+                logging.info("status is ❌")
+                self.toggle()
+                self.mystery_state =  Light.UNKN
+                ret = True
+        else:
             ret = True
-        elif verify_table[status] == Light.UNKN:
-            logging.info("status is ❓")
-            ret = False
-        elif verify_table[status] != self.state:
-            logging.info("status is ❌")
-            self.toggle()
-            ret = True
+
         return ret
 
 
@@ -141,7 +150,7 @@ if __name__ == "__main__":
     else:
         hour, minute = conf['sched_time'].split(':')
         sched.add_job(lm.scheduler, 'cron', hour=hour, minute=minute, args=[sched])
-        sched.add_job(lm.verify_state, 'cron', minute='*/15')
+        sched.add_job(lm.verify_state, 'cron', minute=conf['verify_cron'])
 
     now = datetime.now()
     if now < off_time_in_utc(conf['off_time'], conf['local_tz']):

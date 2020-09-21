@@ -95,6 +95,9 @@ class SwitchMate:
         logging.info(f"mac: {self.mac_addr}")
         try:
             self.device = btle.Peripheral(self.mac_addr, btle.ADDR_TYPE_RANDOM)
+        except btle.BTLEInternalError as ex:
+            logging.error(f"Internal Bt error ... likely need to restart bluetooth")
+            success = False
         except btle.BTLEException as ex:
             if 'failed to connect' in ex.message.lower():
                 logging.error(f"ERROR: Failed to connect to device: {ex.message}")
@@ -203,7 +206,7 @@ class SwitchMate:
     def scan(self):
         self.scanner = btle.Scanner()
         try:
-            self.scan_entries = self.scanner.scan(self.conf['timeout'])
+            self.scan_entries = self.scanner.scan(self.timeout)
         except btle.BTLEException as ex:
             logging.warn(f"can't scanner.scan()... be sure to sudo: {ex.message}")
             return
@@ -227,7 +230,11 @@ class SwitchMate:
     def status(self):
         if self._connect():
             state_handle = self._get_state_handle(self.device)
-            curr_val = self.device.readCharacteristic(state_handle)
+            try:
+                curr_val = self.device.readCharacteristic(state_handle)
+            except btle.BTLEInternalError as ex:
+                logging.error(f"Internal Bt error ... likely need to restart bluetooth")
+                success = False
             if curr_val == SW_STATE['OFF']:
                 return "off"
             elif curr_val == SW_STATE['ON']:
@@ -242,7 +249,11 @@ class SwitchMate:
     def _switch(self, state):
         success = None
         state_handle = self._get_state_handle(self.device)
-        curr_val = self.device.readCharacteristic(state_handle)
+        try:
+            curr_val = self.device.readCharacteristic(state_handle)
+        except btle.BTLEInternalError as ex:
+            logging.error(f"Internal Bt error ... likely need to restart bluetooth")
+            success = False
         if state is SW_STATE['TOGGLE']:
             state = SW_STATE['ON'] if curr_val == SW_STATE['OFF'] else SW_STATE['OFF']
         val_num = self.get_byte(state[0])
@@ -271,12 +282,13 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     import yaml
 
-    conf = None
+    conf = "conf.yaml"
     with open(conf) as f:
         conf = yaml.load(f, Loader=yaml.FullLoader)
 
-    sm = SwitchMate(conf)
-    #print(f"sw: {sm}")
+    sm = SwitchMate()
+    sm.readconf(conf)
+    print(f"sw: {sm}")
     #sm.scan()
     sm.status()
     #sm.batterystatus()
