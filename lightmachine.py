@@ -97,8 +97,8 @@ class LightMachine(Machine, Switch):
         Machine.__init__(self, states=states, initial=Light.OFF)
         self.readconf(self.conf)
 
-        self.add_transition('switchon', Light.OFF, Light.ON, before='switchon', after='check_status')
-        self.add_transition('switchoff', Light.ON, Light.OFF, before='switchoff', after='check_status')
+        self.add_transition('on', Light.OFF, Light.ON, before='switchon', after='check_status')
+        self.add_transition('off', Light.ON, Light.OFF, before='switchoff', after='check_status')
 
 
     def check_status(self):
@@ -145,7 +145,7 @@ if __name__ == "__main__":
 
     now = datetime.now()
     if now < off_time_in_utc(conf['off_time'], conf['local_tz']):
-        logging.info("now < off_time gonna schedule 📆 a run ️🏃 in 2️⃣")
+        logging.info("now > off_time gonna schedule 📆 a run ️🏃 in 2️⃣")
         sched.add_job(lm.scheduler, 'date', run_date=(now+timedelta(minutes=2)), args=[sched])
 
     logging.info(f"start BlockingScheduler()")
