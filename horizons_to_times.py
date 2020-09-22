@@ -29,7 +29,7 @@ def off_time_in_utc(offtime, local_tz):
 
     ten_pm_adj = now.replace(hour=int(off_hour), minute=int(off_minute), second=int(off_second)) + timedelta(hours=diff)
 
-    return ten_pm_adj
+    return ten_pm_adj - timedelta(hour=24)
 
 
 def ephem_to_local(eph, tz):
