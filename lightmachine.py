@@ -159,7 +159,8 @@ if __name__ == "__main__":
         sched.add_job(lm.verify_state, 'cron', minute=conf['verify_cron'])
 
     now = datetime.now()
-    if now < off_time_in_utc(conf['off_time']), conf['local_tz']):
+    sched_hour,sched_minute = conf['sched_time'].split(':')
+    if now < off_time_in_utc(conf['off_time'], conf['local_tz']) or now > now.replace(hour=int(sched_hour), minute=int(sched_minute)):
         logging.info("now < off_time gonna schedule 📆 a run ️🏃 in 2️⃣")
         sched.add_job(lm.scheduler, 'date', run_date=(now+timedelta(minutes=2)), args=[sched])
 
