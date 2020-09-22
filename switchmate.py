@@ -7,7 +7,7 @@ Sun 13 Sep 16:41:07 BST 2020
 """
 
 import sys, os, logging
-#from elevate import elevate
+from utils import set_log_level
 import bluepy.btle as btle
 import enum
 
@@ -179,10 +179,12 @@ class SwitchMate:
 
     def switchon(self):
         logging.debug(f"switchon()")
+        set_log_level(logging.INFO)
         return self._activate_switch("ON")
 
     def switchoff(self):
         logging.debug(f"switchon()")
+        set_log_level(logging.INFO)
         return self._activate_switch("OFF")
 
     def _activate_switch(self, state):

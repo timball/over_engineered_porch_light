@@ -11,6 +11,7 @@ import os, sys
 import yaml
 
 from horizons_to_times import horizons_to_times, off_time_in_utc
+from utils import set_log_level
 from switchmate import SwitchMate, FakeSwitch
 
 Switch = None
@@ -111,6 +112,7 @@ class LightMachine(Machine, SwitchScheduler):
         logging.warning(f"status: {self.state}")
         two_mins = datetime.now() + timedelta(minutes=2)
         sched.add_job(lm.verify_state, 'date', run_date=two_mins)
+        set_log_level(logging.WARNING)
 
     def verify_state(self):
         logging.info("verify_state()")
