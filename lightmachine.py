@@ -13,20 +13,21 @@ import yaml
 from horizons_to_times import horizons_to_times, off_time_in_utc
 from switchmate import SwitchMate, FakeSwitch
 
-UnderLyingSwitch = None
+Switch = None
 # either use FakeSwitch or SwitchMate depending on conf['debug']
 with open ('conf.yaml') as f:
     conf = yaml.load(f, Loader=yaml.FullLoader)
 
 if conf['debug'] == True:
     print(f"debug set")
-    UnderLyingSwitch = FakeSwitch
+    Switch = FakeSwitch
     logging.basicConfig(level=logging.INFO)
 else:
     print(f"debug NOT set")
-    UnderLyingSwitch = SwitchMate
-    logging.basicConfig(level=logging.INFO)
-
+    Switch = SwitchMate
+    logging.basicConfig(level=logging.INFO, 
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        datefmt='%m-%d %H:%M')
 
 class Light(enum.Enum):
     ON = 1
@@ -35,7 +36,7 @@ class Light(enum.Enum):
     UNKN = 3
 
 
-class Switch(UnderLyingSwitch):
+class SwitchScheduler(Switch):
     """ this is a switch that controls scheduling of an underlying switch """
     def gen_fake_schedule(self, conf):
         """ we don't use conf ... just self.conf but for consistancy sake """
@@ -90,7 +91,7 @@ class Switch(UnderLyingSwitch):
         sched.print_jobs()
 
 
-class LightMachine(Machine, Switch):
+class LightMachine(Machine, SwitchScheduler):
     """ test a light switch with a random flipper """
 
     def __init__(self, conf):
