@@ -108,6 +108,8 @@ class LightMachine(Machine, Switch):
     def check_status(self):
         self.mystery_state = Light.UNKN
         logging.warning(f"status: {self.state}")
+        two_mins = datetime.now() + timedelta(minutes=2)
+        sched.add_job(lm.verify_state, 'date', run_date=two_mins)
 
     def verify_state(self):
         logging.info("verify_state()")
@@ -134,7 +136,7 @@ class LightMachine(Machine, Switch):
                 ret = True
         else:
             ret = True
-
+        # send back the ret value either True or False based on the state of the light
         return ret
 
 
