@@ -76,13 +76,16 @@ class Switch(UnderLayingSwitch):
 
         if timez['morn_twil']['utc'] > now:
             sched.add_job(self.switchon,  'date', run_date=timez['morn_twil']['utc'])
+            logging.info(f"🌅 morn_twil: {timez['morn_twil']['local']}")
         if timez['post_sunl']['utc'] > now:
             sched.add_job(self.switchoff, 'date', run_date=timez['post_sunl']['utc'])
-
+            logging.info(f"🌇 post_sunl: {timez['post_sunl']['local']}")
         if timez['aft_twil']['utc'] > now:
             sched.add_job(self.switchon,  'date', run_date=timez['aft_twil']['utc'])
+            logging.info(f"🌆 aft_twil: {timez['aft_twil']['local']}")
         if timez['off_time']['utc'] > now:
             sched.add_job(self.switchoff, 'date', run_date=timez['off_time']['utc'])
+            logging.info(f"🌃 off_time: {timez['off_time']['local']}")
 
         sched.print_jobs()
 
@@ -117,7 +120,7 @@ class LightMachine(Machine, Switch):
             status = self.status()
 
             if verify_table[status] == self.state:
-                logging.info("status is ✅ {status}")
+                logging.info(f"status is ✅ {status} 💡")
                 self.mystery_state =  verify_table[status]
                 ret = True
             elif verify_table[status] == Light.UNKN:
@@ -125,7 +128,7 @@ class LightMachine(Machine, Switch):
                 self.mystery_state =  Light.UNKN
                 ret = False
             elif verify_table[status] != self.state:
-                logging.info("status is ❌")
+                logging.info("status is 🚫")
                 self.toggle()
                 self.mystery_state =  Light.UNKN
                 ret = True

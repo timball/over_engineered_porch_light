@@ -85,10 +85,13 @@ def horizons_to_times(conf):
     timez['aft_twil']['utc'] = ephem.localtime(obs.next_setting(ephem.Sun(), use_center=True))
     timez['aft_twil']['local'] = ephem_to_local(timez['aft_twil']['utc'], conf['local_tz'])
 
+    off_hour,off_minute,off_second = conf['off_time'].split(':')
+    ten_pm_adj = now.replace(hour=int(off_hour), minute=int(off_minute), second=int(off_second))
+
     timez['off_time'] = dict()
     timez['off_time']['horizon'] = '🌒'
     timez['off_time']['utc'] = offtime_local(timez['morn_twil']['utc'], conf)
-    timez['off_time']['local'] = ephem_to_local(timez['off_time']['utc'], conf['local_tz'])
+    timez['off_time']['local'] = ten_pm_adj
 
     return timez
 

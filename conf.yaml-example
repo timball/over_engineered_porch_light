@@ -23,9 +23,9 @@ verify_cron = "*/15"
 
 # this roughly translates to when you want the lights to turn on and off 
 horizons:
-  morn_twil: -12
-  post_sunl:   1
-  aft_twil:    6
+  morn_twil: -11
+  post_sunl:   2
+  aft_twil:    1
 
 # some test config setting
 debug: False
