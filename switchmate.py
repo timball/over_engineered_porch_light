@@ -52,7 +52,7 @@ class SwitchMate:
     def readconf(self, conf):
         """ this isn't an __init__() bc of weirdo problems I had w/ inheritance """
         if os.geteuid() != 0:
-            logging.warn(f"WARN: not root. Won't attempt to elevate()")
+            logging.warning(f"WARN: not root. Won't attempt to elevate()")
             #elevate()
         self.mac_addr = conf['mac_addr']
         self.timeout = conf['timeout']
