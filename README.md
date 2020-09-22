@@ -25,6 +25,13 @@ Because Bt is annoying, every few minutes there has to be a check to
 verify the switch is in the right state. I could have been smarter about
 how this check worked but Bt is annoying and unreliable.
 
+Some assumptions: 
+- raspberry pi configured with bluetooth
+- raspberry pi time synced w/ ntpd or similiar
+- raspberry pi timezone set to UTC
+- switchmate mac addr set in conf.yaml 
+    `python ./switchmate.py` can be used to scan for nearby switchmate switches
+
 ## Usage
 ```
 $ virtualenv -p python3 virt 
