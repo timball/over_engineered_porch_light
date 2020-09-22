@@ -7,18 +7,19 @@ use case is for an annoying front porch light that is not connected to a
 breaker so it can't simply be wired to a smart switch.
 
 The code in switchmate.py is based on
-https://github.com/brianpeiris/switchmate but I changed the code to be a
-python object and not rely on sudo (at least on my raspberrypi). He
+https://github.com/brianpeiris/switchmate. I refactored the code to be a
+python object. Also it no longer relies on sudo (at least on my raspberrypi). He
 licensed his MIT so I'm doing the same.
 
-It uses [pyephem](https://rhodesmill.org/pyephem/) to figure out when to
-turn on the light based on local sunrise and sunset. I mostly guess at
-the horizon angles that made sense.
+horizons_to_times.py uses [pyephem](https://rhodesmill.org/pyephem/) to figure out when to
+turn on the light based on local sunrise and sunset. I mostly guessed at
+the horizon angles that made sense and put those values into conf.yaml-example
 
-It uses [apscheduler](https://github.com/agronholm/apscheduler) to be
-schedule run times and
-[transitions](https://github.com/pytransitions/transitions) to manage
-the state machine that is a light switch. 
+lightmachine.py uses [apscheduler](https://github.com/agronholm/apscheduler) to
+flexibly schedule execution times. 
+[transitions](https://github.com/pytransitions/transitions) manages
+the state machine that is a light switch. To be clear the states are 
+"Light.ON", "Light.OFF", and "Light.UNKN".
 
 Because Bt is annoying, every few minutes there has to be a check to
 verify the switch is in the right state. I could have been smarter about
