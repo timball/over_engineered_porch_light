@@ -209,22 +209,32 @@ class SwitchMate:
             self.scan_entries = self.scanner.scan(self.timeout)
         except btle.BTLEException as ex:
             logging.warn(f"can't scanner.scan()... be sure to sudo: {ex.message}")
-            return
+            success = False
+        except btle.BTLEInternalError as ex:
+            logging.error(f"Internal Bt error ... likely need to restart bluetooth")
+            success = False
 
         try:
             self.switchmates = self._get_switchmates(self.scan_entries)
+        # maybe the exceptions should be in _get_switchmates()
         except btle.BTLException as ex:
-            logging.warn(f"can't get_switchmates()... be sure to sudo: {ex.message}")
-            return
+            logging.warn(f"can't get_switchmates()... Bt might be terrible: {ex.message}")
+            success = False
+        except btle.BTLEInternalError as ex:
+            logging.error(f"Internal Bt error ... likely need to restart bluetooth")
+            success = False
         except OSError as ex:
             logging.error(f"Error! Can't complete scan: {ex}")
-            return
+            success = False
         if len(self.switchmates):
             logging.info(f"Found SwitchMate!")
             for switchmate in self.switchmates:
                 logging.info(f"{switchmate.addr}")
+            success = True
         else:
             logging.warn(f"SwitchMate.scan() found no devices!")
+            success = True
+        return success
 
 
     def status(self):

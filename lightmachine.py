@@ -131,7 +131,7 @@ class LightMachine(Machine, SwitchScheduler):
                 self.mystery_state =  Light.UNKN
                 ret = False
             elif verify_table[status] != self.state:
-                logging.info("status is 🚫")
+                logging.info("status is 🚫 toggling 💡")
                 self.toggle()
                 self.mystery_state =  Light.UNKN
                 ret = True
