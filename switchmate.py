@@ -179,21 +179,17 @@ class SwitchMate:
 
     def switchon(self):
         logging.debug(f"switchon()")
-        logging.info(f"💡 ON")
-        ret = None
-        if self._connect():
-            ret = self._switch(SW_STATE['ON'])
-        else:
-            ret = False
-        return ret
-
+        return self._activate_switch("ON")
 
     def switchoff(self):
-        logging.debug(f"switchoff()")
-        logging.info(f"💡 OFF")
+        logging.debug(f"switchon()")
+        return self._activate_switch("OFF")
+
+    def _activate_switch(self, state):
+        logging.info(f"💡 {state}")
         ret = None
         if self._connect():
-            ret = self._switch(SW_STATE['OFF'])
+            ret = self._switch(SW_STATE[state])
         else:
             ret = False
         return ret
