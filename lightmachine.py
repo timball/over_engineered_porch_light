@@ -100,7 +100,15 @@ class LightMachine(Machine, SwitchScheduler):
         self.mystery_state = Light.UNKN
 
         states = [Light.ON, Light.OFF, Light.BAT]
-        Machine.__init__(self, states=states, initial=Light.OFF)
+
+        t = horizons_to_times(self.conf)
+        now = datetime.utcnow()
+        if (t['morn_twil']['utc'] < now or now < t['post_sunl']['utc']) or (t['aft_twil'] < now or now < t['off_time']['utc']):
+            initial_state = Light.ON
+        else:
+            initial_state = Light.OFF
+        Machine.__init__(self, states=states, initial=initial_state)
+
         self.readconf(self.conf)
 
         self.add_transition('on', Light.OFF, Light.ON, before='switchon', after='check_status')
