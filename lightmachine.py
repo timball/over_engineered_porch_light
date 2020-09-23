@@ -68,7 +68,8 @@ class SwitchScheduler(Switch):
 
 
     def scheduler(self, sched):
-        print(f"scheduler() {self.batterystatus()}")
+        set_log_level(logging.INFO)
+        logging.info(f"scheduler() {self.batterystatus()}")
         if conf['debug'] == True:
             timez = self.gen_fake_schedule(self.conf)
         else:
@@ -103,7 +104,7 @@ class LightMachine(Machine, SwitchScheduler):
 
         t = horizons_to_times(self.conf)
         now = datetime.utcnow()
-        if (t['morn_twil']['utc'] < now or now < t['post_sunl']['utc']) or (t['aft_twil'] < now or now < t['off_time']['utc']):
+        if (t['morn_twil']['utc'] < now and now < t['post_sunl']['utc']) or (t['aft_twil']['utc'] < now and now < t['off_time']['utc']):
             initial_state = Light.ON
         else:
             initial_state = Light.OFF
@@ -145,9 +146,10 @@ class LightMachine(Machine, SwitchScheduler):
                 self.mystery_state =  Light.UNKN
                 ret = True
         else:
+            logging.info("✅ status is known and was set right quiet log messages")
+            set_log_level(logging.WARNING)
             ret = True
         # send back the ret value either True or False based on the state of the light
-        set_log_level(logging.WARNING)
         return ret
 
 
