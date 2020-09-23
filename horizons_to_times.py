@@ -90,7 +90,7 @@ def horizons_to_times(conf):
 
     timez['off_time'] = dict()
     timez['off_time']['horizon'] = '🌒'
-    timez['off_time']['utc'] = offtime_local(timez['morn_twil']['utc'], conf)
+    timez['off_time']['utc'] = offtime_local(ten_pm_adj, conf)
     timez['off_time']['local'] = ten_pm_adj
 
     return timez
