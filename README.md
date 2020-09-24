@@ -42,4 +42,8 @@ $ edit conf.yaml
 $ python ./lightmachine.py
 ```
 
+At somepoint would like to put https://www.cleardarksky.com/c/USNOkey.html or 
+api.weather.com data into this to turn a light on based on darkness in the sky.
+
 --timball
+
