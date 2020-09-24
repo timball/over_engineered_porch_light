@@ -112,11 +112,18 @@ class LightMachine(Machine, SwitchScheduler):
 
         self.readconf(self.conf)
 
-        self.add_transition('on', Light.OFF, Light.ON, before='switchon', after='check_status')
-        self.add_transition('off', Light.ON, Light.OFF, before='switchoff', after='check_status')
+        self.add_transition('on', Light.OFF, Light.ON, before='on_state', after='check_state')
+        self.add_transition('off', Light.ON, Light.OFF, before='off_state', after='check_state')
 
+    def on_state(self):
+        set_log_level(logging.INFO)
+        self.switchon()
 
-    def check_status(self):
+    def off_state(self):
+        set_log_level(logging.INFO)
+        self.switchoff()
+
+    def check_state(self):
         self.mystery_state = Light.UNKN
         logging.warning(f"status: {self.state}")
         two_mins = datetime.now() + timedelta(minutes=2)
@@ -124,7 +131,6 @@ class LightMachine(Machine, SwitchScheduler):
 
     def verify_state(self):
         logging.info("verify_state()")
-        ret = None
         verify_table = {'on': Light.ON,
                         'off': Light.OFF,
                         False: Light.UNKN}
@@ -135,22 +141,16 @@ class LightMachine(Machine, SwitchScheduler):
             if verify_table[status] == self.state:
                 logging.info(f"status is ✅ {status} 💡")
                 self.mystery_state =  verify_table[status]
-                ret = True
             elif verify_table[status] == Light.UNKN:
                 logging.info("status is ❓")
                 self.mystery_state =  Light.UNKN
-                ret = False
             elif verify_table[status] != self.state:
                 logging.info("status is 🚫 toggling 💡")
                 self.toggle()
                 self.mystery_state =  Light.UNKN
-                ret = True
         else:
             logging.info("✅ status is known and was set right quiet log messages")
             set_log_level(logging.WARNING)
-            ret = True
-        # send back the ret value either True or False based on the state of the light
-        return ret
 
 
 if __name__ == "__main__":
