@@ -10,7 +10,6 @@ import secrets
 import os, sys
 import yaml
 
-from horizons_to_times import horizons_to_times, fake_horizons_to_times, off_time_in_utc
 from utils import set_log_level
 from switchmate import SwitchMate, FakeSwitch
 
@@ -25,16 +24,49 @@ class Light(enum.Enum):
 
 class SwitchScheduler(Switch):
     """ this is a scheduler that controls scheduling of an underlying switch """
+    def calc_time_from_loc_and_schedule(self, point, schedule):
+        import ephem
+
+        obs = ephem.Observer()
+        obs.lat = point['lat']
+        obs.lon = point['lon']
+        obs.elev = point['elev']
+
+        today = datetime.now()
+
+        obs.date = today.replace(hour=12, minute=0, second=0)
+
+        obs.horizon = str(schedule['horizon'])
+        if schedule['when'] == "morning":
+            utc_time = obs.previous_rising(ephem.Sun())
+        elif schedule['when'] == "evening":
+            utc_time = obs.next_setting(ephem.Sun())
+        else:
+            raise NameError("no idea when you want to calculate")
+        time = ephem.localtime(utc_time)
+        return time
+
+    def rand_off_time(self, off_time_str):
+        import secrets
+        h,m,s = off_time_str.split(':')
+        rand_minute = int(m) + secrets.randbelow(60 - int(m))
+        now = datetime.now()
+        off_time_adj = now.replace(hour=int(h), minute=rand_minute, second=int(s))
+        return off_time_adj
+
+    def _add_times_to_schedule(self, schedule):
+        for event, val in schedule.items():
+            if event == 'off_time':
+                schedule[event]['time'] = self.rand_off_time(val['time'])
+            else:
+                schedule[event]['time'] = self.calc_time_from_loc_and_schedule(self.conf['home'], val)
+        return schedule
 
     def scheduler(self, sched):
         set_log_level(logging.INFO)
         logging.info(f"scheduler() {self.batterystatus()}")
 
-        if conf['debug'] == True:
-            timez = fake_horizons_to_times(self.conf)
-        else:
-            timez = horizons_to_times(self.conf)
-
+        timez = self._add_times_to_schedule(self.conf['schedule'])
         now = datetime.now()
 
         for run in timez.keys():
@@ -58,9 +90,9 @@ class LightMachine(Machine, SwitchScheduler):
 
         states = [Light.ON, Light.OFF, Light.BAT]
 
-        t = horizons_to_times(self.conf)
-        now = datetime.utcnow()
-        if (t['morn_twil']['utc'] < now and now < t['post_sunl']['utc']) or (t['aft_twil']['utc'] < now and now < t['off_time']['utc']):
+        t = self._add_times_to_schedule(self.conf['schedule'])
+        now = datetime.now()
+        if (t['morn_twil']['time'] < now and now < t['post_sunl']['time']) or (t['aft_twil']['time'] < now and now < t['off_time']['time']):
             initial_state = Light.ON
         else:
             initial_state = Light.OFF
