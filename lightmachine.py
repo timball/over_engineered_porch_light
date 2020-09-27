@@ -38,34 +38,7 @@ class Light(enum.Enum):
 
 
 class SwitchScheduler(Switch):
-    """ this is a switch that controls scheduling of an underlying switch """
-    def gen_fake_schedule(self, conf):
-        """ we don't use conf ... just self.conf but for consistancy sake """
-        import pytz
-
-        timez = dict()
-
-        now = datetime.now()
-        local_tz = pytz.timezone(self.conf['local_tz'])
-
-        counter = 0
-        for key in self.conf['horizons']:
-            rand_time = self.conf['TEST_RAND_PAD'] + secrets.randbelow (self.conf['TEST_MAX_RAND'] - self.conf['TEST_RAND_PAD'])
-
-            timez[key] = dict()
-            timez[key]['horizon'] = self.conf['horizons'][key]
-            timez[key]['utc'] = now + timedelta(seconds=(rand_time+counter))
-            timez[key]['local'] = now.astimezone(local_tz)
-            counter += rand_time
-            print(f"counter: {counter}")
-
-        timez['off_time'] = dict()
-        timez['off_time']['horizon'] = '🌃'
-        timez['off_time']['utc'] = now + timedelta(seconds=110)
-        timez['off_time']['local'] = now.astimezone(local_tz)
-
-        return timez
-
+    """ this is a scheduler that controls scheduling of an underlying switch """
 
     def scheduler(self, sched):
         set_log_level(logging.INFO)
