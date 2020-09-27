@@ -94,9 +94,6 @@ class SwitchMate:
         logging.info(f"mac: {self.mac_addr}")
         try:
             self.device = btle.Peripheral(self.mac_addr, btle.ADDR_TYPE_RANDOM)
-        except btle.BTLEInternalError as ex:
-            logging.error(f"Internal Bt error ... likely need to restart bluetooth")
-            success = False
         except btle.BTLEException as ex:
             if 'failed to connect' in ex.message.lower():
                 logging.error(f"ERROR: Failed to connect to device: {ex.message}")
@@ -104,6 +101,9 @@ class SwitchMate:
             else:
                 logging.error(f"ERROR: {ex.message}")
                 success = False
+        except btle.BTLEInternalError as ex:
+            logging.error(f"Internal Bt error ... likely need to restart bluetooth")
+            success = False
         except OSError as ex:
             logging.error(f"ERROR: OS Failure {ex}")
             success = False
@@ -195,7 +195,7 @@ class SwitchMate:
 
 
     def __repr__(self):
-        return f"conf: {self.mac_addr} {self.status()}"
+        return f"SwitchMate: mac_addr: {self.mac_addr} timeout: {self.timeout}"
 
 
     def scan(self):
