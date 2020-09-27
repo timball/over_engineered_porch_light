@@ -23,10 +23,29 @@ sched_time: "3:14"
 verify_cron = "*/15"
 
 # this roughly translates to when you want the lights to turn on and off 
-horizons:
-  morn_twil: -11  # abt < 1h before sunrise
-  post_sunl:  -2  # abt 10m before sunrise
-  aft_twil:   -5  # abt 5m before dusk
+schedule:
+  morn_twil:
+      emoji: 🌅
+      horizon: -11 # abt < 1h before sunrise
+      state: on
+      when: morning
+  post_sunl:
+      emoji: 🏞
+      horizon: -2  # abt 10m before sunrise
+      state: off
+      when: morning
+  aft_twil: 
+      emoji: 🌆
+      horizon: -5  # abt 5m before dusk
+      state: on
+      when: evening
+  off_time:
+      emoji: 🌃
+      horizon: None
+      state: off
+      when: evening
+      time: "22:00:00"
+      rand_skew: 60
 
 # some test config setting
 debug: False

@@ -37,18 +37,14 @@ class SwitchScheduler(Switch):
 
         now = datetime.now()
 
-        if timez['morn_twil']['utc'] > now:
-            sched.add_job(self.switchon,  'date', run_date=timez['morn_twil']['utc'])
-            logging.info(f"🌅 morn_twil: {timez['morn_twil']['local']}")
-        if timez['post_sunl']['utc'] > now:
-            sched.add_job(self.switchoff, 'date', run_date=timez['post_sunl']['utc'])
-            logging.info(f"🌇 post_sunl: {timez['post_sunl']['local']}")
-        if timez['aft_twil']['utc'] > now:
-            sched.add_job(self.switchon,  'date', run_date=timez['aft_twil']['utc'])
-            logging.info(f"🌆 aft_twil: {timez['aft_twil']['local']}")
-        if timez['off_time']['utc'] > now:
-            sched.add_job(self.switchoff, 'date', run_date=timez['off_time']['utc'])
-            logging.info(f"🌃 off_time: {timez['off_time']['local']}")
+        for run in timez.keys():
+            if timez[run]['time'] > now:
+                if timez[run]['state']:
+                    state = self.switchon
+                else:
+                    state = self.switchoff
+                sched.add_job(state, 'date', run_date=timez[run]['time'])
+                logging.info(f"{timez[run]['emoji']} {run}: {timez[run]['time']}")
 
         sched.print_jobs()
 
@@ -109,7 +105,7 @@ class LightMachine(Machine, SwitchScheduler):
                 self.toggle()
                 self.mystery_state =  Light.UNKN
         else:
-            logging.info("✅ status is known and was set right quiet log messages")
+            logging.info("✅ status correct. quieting log messages")
             set_log_level(logging.WARNING)
 
 
