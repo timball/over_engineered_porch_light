@@ -90,7 +90,7 @@ class LightMachine(Machine, SwitchScheduler):
         sched.add_job(lm.verify_state, 'date', run_date=two_mins)
 
     def verify_state(self):
-        logging.info("verify_state()")
+        logging.debug("verify_state()")
         verify_table = {'on': Light.ON,
                         'off': Light.OFF,
                         False: Light.UNKN}
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     now = datetime.now()
     sched_hour,sched_minute = conf['sched_time'].split(':')
     if now < off_time_in_utc(conf['off_time'], conf['local_tz']) or now > now.replace(hour=int(sched_hour), minute=int(sched_minute)):
-        logging.info("sched_time < now < off_time gonna schedule 📆 a run ️🏃 in 2️⃣")
+        logging.info("sched_time < now < off_time gonna add a scheduler 📆 in 2️⃣")
         sched.add_job(lm.scheduler, 'date', run_date=(now+timedelta(minutes=2)), args=[sched])
 
     logging.info(f"start BlockingScheduler()")
