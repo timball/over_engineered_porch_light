@@ -284,20 +284,78 @@ class SwitchMate:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
     import yaml
+    import getopt
+    
+    logging.basicConfig(level=logging.WARNING)
+    conf = dict()
+    config = None
+    timeout = None
+    mac_addr = None
+    
+    def _print_help():
+        print (f"Usage: {sys.argv[0]} option")
+        print (f"{sys.argv[0]} [-t|--timeout=seconds] [-c|--conf=config] [-m|--mac_addr=mac_addr] [-h|--help] <scan|status|battery|toggle|on|off|debug>")
+    
+    try: 
+        opts, args = getopt.getopt(sys.argv[1:], "ht:m:c:", ["timeout=", "mac_addr=", "conf="])
+    except getopt.GetoptError:
+        _print_help()
+        sys.exit(2)
 
-    conf = "conf.yaml"
-    with open(conf) as f:
-        conf = yaml.load(f, Loader=yaml.FullLoader)
+    for opt, arg in opts: 
+        if opt in ('-h', '--help'):
+            _print_help()
+            sys.exit(2)
+        elif opt in ('-t', '--timeout'):
+            timeout = arg
+        elif opt in ('-m', '--mac_addr'):
+            mac_addr = arg
+        elif opt in ('-c', '--conf'):
+            config = arg
+        
+    if config: 
+        with open(config) as f:
+            conf = yaml.load(f, Loader=yaml.FullLoader)
+    if timeout is not None: 
+        conf['timeout'] = timeout
+    if mac_addr is not None:
+        conf['mac_addr'] = mac_addr
 
-    sm = SwitchMate()
-    sm.readconf(conf)
-    print(f"sw: {sm}")
-    sm.scan()
-    #sm.status()
-    #sm.batterystatus()
-    #sm.toggle()
-    #sm.switchon()
-    #sm.switchoff()
-    #sm.debug()
+    if config is None: 
+        _print_help()
+        sys.exit(2)
+
+    if len(args) != 1:
+        _print_help()
+        sys.exit(1)
+    else:
+        sm = SwitchMate()
+        sm.readconf(conf)
+        logging.debug(sm)
+        
+        if   args[0] == "scan":
+            logging.debug("scan")
+            sm.scan() 
+        elif args[0] == "status":
+            logging.debug("status")
+            sm.status()
+        elif args[0] == "battery":
+            logging.debug("battery")
+            sm.batterystatus()
+        elif args[0] == "toggle":
+            logging.debug("toggle")
+            sm.toggle()
+        elif args[0] == "on":
+            logging.debug("on")
+            sm.switchon()
+        elif args[0] == "off":
+            logging.debug("off")
+            sm.switchoff()
+        elif args[0] == "debug":
+            logging.debug("debug")
+            sm.debug()
+        else: 
+            logging.debug("default help")
+            _print_help()
+            sys.exit(2)
