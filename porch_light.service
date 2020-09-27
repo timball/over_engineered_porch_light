@@ -1,0 +1,14 @@
+[Unit]
+Description=Porch Light service
+After=network.target
+StartLimitInterval=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=2
+User=pi
+ExecStart=/home/pi/Documents/virt/bin/python /home/pi/Documents/over_engineered_light_switch/lightmachine.py
+
+[Install]
+WantedBy=multi-user.target
