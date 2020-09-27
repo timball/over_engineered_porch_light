@@ -80,7 +80,6 @@ class SwitchScheduler(Switch):
 
         sched.print_jobs()
 
-
 class LightMachine(Machine, SwitchScheduler):
     """ test a light switch with a random flipper """
 
@@ -143,11 +142,10 @@ class LightMachine(Machine, SwitchScheduler):
 
 if __name__ == "__main__":
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open (f"{dir_path}/conf.yaml") as f:
-        conf = yaml.load(f, Loader=yaml.FullLoader)
+    conf = utils.load_conf(f"{dir_path}/conf.yaml")
 
     logging.basicConfig(level=logging.INFO,
-                        filename=conf['logfile']
+                        filename=conf['logfile'],
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M')
 
