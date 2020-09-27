@@ -1,6 +1,7 @@
 # conf.yaml 
 
 mac_addr: <your switchmate mac_addr here>
+logfile: <full path to logfile>
 timeout: 10
 
 # where you light is located

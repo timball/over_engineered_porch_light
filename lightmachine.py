@@ -14,21 +14,7 @@ from horizons_to_times import horizons_to_times, fake_horizons_to_times, off_tim
 from utils import set_log_level
 from switchmate import SwitchMate, FakeSwitch
 
-Switch = None
-# either use FakeSwitch or SwitchMate depending on conf['debug']
-with open ('conf.yaml') as f:
-    conf = yaml.load(f, Loader=yaml.FullLoader)
-
-if conf['debug'] == True:
-    print(f"debug set")
-    Switch = FakeSwitch
-    logging.basicConfig(level=logging.INFO)
-else:
-    print(f"debug NOT set")
-    Switch = SwitchMate
-    logging.basicConfig(level=logging.INFO, 
-                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                        datefmt='%m-%d %H:%M')
+Switch = SwitchMate
 
 class Light(enum.Enum):
     ON = 1
@@ -128,6 +114,14 @@ class LightMachine(Machine, SwitchScheduler):
 
 
 if __name__ == "__main__":
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open (f"{dir_path}/conf.yaml") as f:
+        conf = yaml.load(f, Loader=yaml.FullLoader)
+
+    logging.basicConfig(level=logging.INFO,
+                        filename=conf['logfile']
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        datefmt='%m-%d %H:%M')
 
     logging.info(f"making LightMachine()")
     lm = LightMachine(conf)
