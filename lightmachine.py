@@ -129,16 +129,16 @@ if __name__ == "__main__":
     logging.info(f"making BlockingScheduler()")
     sched = BlockingScheduler(daemon=True)
 
-    # if now is after off_time
     logging.info(f"adding scheduler cron 🕙")
-    if conf['debug']:
-        # fire a little more often bc we're debugging
-        sched.add_job(lm.scheduler, 'cron', minute='*/2', args=[sched])
-    else:
-        hour, minute = conf['sched_time'].split(':')
-        sched.add_job(lm.scheduler, 'cron', hour=hour, minute=minute, args=[sched])
-        sched.add_job(lm.verify_state, 'cron', minute=conf['verify_cron'])
+    # debug sched_time can be ':*/2' to fire every two minutes
+    hour, minute = conf['sched_time'].split(':')
+    if hour == '':
+        hour = None
 
+    sched.add_job(lm.scheduler, 'cron', hour=hour, minute=minute, args=[sched])
+    sched.add_job(lm.verify_state, 'cron', minute=conf['verify_cron'])
+
+    # determine if I need to start a scheduler earlier than normal
     now = datetime.now()
     sched_hour,sched_minute = conf['sched_time'].split(':')
     if now < off_time_in_utc(conf['off_time'], conf['local_tz']) or now > now.replace(hour=int(sched_hour), minute=int(sched_minute)):
