@@ -10,7 +10,7 @@ import secrets
 import os, sys
 import yaml
 
-from horizons_to_times import horizons_to_times, off_time_in_utc
+from horizons_to_times import horizons_to_times, fake_horizons_to_times, off_time_in_utc
 from utils import set_log_level
 from switchmate import SwitchMate, FakeSwitch
 
@@ -43,8 +43,9 @@ class SwitchScheduler(Switch):
     def scheduler(self, sched):
         set_log_level(logging.INFO)
         logging.info(f"scheduler() {self.batterystatus()}")
+
         if conf['debug'] == True:
-            timez = self.gen_fake_schedule(self.conf)
+            timez = fake_horizons_to_times(self.conf)
         else:
             timez = horizons_to_times(self.conf)
 
