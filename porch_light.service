@@ -8,7 +8,8 @@ Type=simple
 Restart=always
 RestartSec=2
 User=pi
-ExecStart=/home/pi/Documents/virt/bin/python /home/pi/Documents/over_engineered_light_switch/lightmachine.py
+ExecStart=/home/pi/Documents/virt/bin/python /home/pi/Documents/over_engineered_porch_light/lightmachine.py
 
 [Install]
 WantedBy=multi-user.target
+

@@ -44,7 +44,7 @@ schedule:
       horizon: None
       state: off
       when: evening
-      time: "22:00:00"
+      off_hour: "22:00:00"
       rand_skew: 60
 
 # some test config setting
