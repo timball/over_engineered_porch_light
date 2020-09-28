@@ -10,7 +10,7 @@ import secrets
 import os, sys
 import yaml
 
-from utils import set_log_level
+from utils import set_log_level, load_conf
 from switchmate import SwitchMate, FakeSwitch
 
 Switch = SwitchMate
@@ -48,16 +48,19 @@ class SwitchScheduler(Switch):
 
     def rand_off_time(self, off_time_str):
         import secrets
+
         h,m,s = off_time_str.split(':')
         rand_minute = int(m) + secrets.randbelow(60 - int(m))
+
         now = datetime.now()
         off_time_adj = now.replace(hour=int(h), minute=rand_minute, second=int(s))
+
         return off_time_adj
 
     def _add_times_to_schedule(self, schedule):
         for event, val in schedule.items():
             if event == 'off_time':
-                schedule[event]['time'] = self.rand_off_time(val['time'])
+                schedule[event]['time'] = self.rand_off_time(val['off_hour'])
             else:
                 schedule[event]['time'] = self.calc_time_from_loc_and_schedule(self.conf['home'], val)
         return schedule
@@ -142,7 +145,7 @@ class LightMachine(Machine, SwitchScheduler):
 
 if __name__ == "__main__":
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    conf = utils.load_conf(f"{dir_path}/conf.yaml")
+    conf = load_conf(f"{dir_path}/conf.yaml")
 
     logging.basicConfig(level=logging.INFO,
                         filename=conf['logfile'],
@@ -166,8 +169,11 @@ if __name__ == "__main__":
 
     # determine if I need to start a scheduler earlier than normal
     now = datetime.now()
+    off_time = lm.rand_off_time(conf['schedule']['off_time']['off_hour'])
     sched_hour,sched_minute = conf['sched_time'].split(':')
-    if now < off_time_in_utc(conf['off_time'], conf['local_tz']) or now > now.replace(hour=int(sched_hour), minute=int(sched_minute)):
+    sched_time = now.replace(hour=int(sched_hour), minute=int(sched_minute))
+
+    if now < off_time or now > sched_time:
         logging.info("sched_time < now < off_time gonna add a scheduler 📆 in 2️⃣")
         sched.add_job(lm.scheduler, 'date', run_date=(now+timedelta(minutes=2)), args=[sched])
 
