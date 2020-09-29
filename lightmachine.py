@@ -11,8 +11,13 @@ import secrets
 import os, sys
 import yaml
 
-from utils import set_log_level, load_conf
+from utils import load_conf
 from switchmate import SwitchMate
+
+def set_log_level(log_level):
+    """ the purpose of this function is to do nothing bc
+        setting log_level is causing confusion sa I debug """
+    return
 
 class Light(enum.Enum):
     ON = 1
@@ -139,7 +144,7 @@ class LightMachine(Machine, SwitchScheduler):
                 self.mystery_state =  Light.UNKN
         else:
             logging.info("✅ status correct. quieting log messages")
-            set_log_level(logging.WARNING)
+            set_log_level(logging.WARNING) # XXX this might not be working ... just suck it up and accept the log messages
 
 
 if __name__ == "__main__":
