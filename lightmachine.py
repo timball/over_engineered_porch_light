@@ -161,11 +161,7 @@ if __name__ == "__main__":
     sched = BlockingScheduler(daemon=True)
 
     logging.info(f"adding scheduler cron 🕙")
-    # debug sched_time can be ':*/2' to fire every two minutes
     hour, minute = conf['sched_time'].split(':')
-    if hour == '':
-        hour = None
-
     sched.add_job(lm.scheduler, 'cron', hour=hour, minute=minute, args=[sched])
     sched.add_job(lm.verify_state, 'cron', minute=conf['verify_cron'])
 
@@ -174,8 +170,8 @@ if __name__ == "__main__":
     off_time = synth_off_time(conf['schedule']['off_time']['off_hour'])
     sched_time = synth_sched_time(conf['sched_time'])
 
-    if now < off_time or now > sched_time:
         logging.info("sched_time < now < off_time gonna add a scheduler 📆 in 2️⃣")
+    if (off_time < sched_time) and (sched_time < now or now < off_time):
         sched.add_job(lm.scheduler, 'date', run_date=(now+timedelta(minutes=2)), args=[sched])
 
     logging.info(f"start BlockingScheduler()")
