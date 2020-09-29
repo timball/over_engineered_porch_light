@@ -29,24 +29,24 @@ VERIFY_TABLE = {'on': Light.ON,
 class SwitchScheduler():
     """ this is a scheduler that controls scheduling of an underlying switch """
     def __init__(self, point=None):
-        self.obs = ephem.Observer()
-        self.obs.lat = point['lat']
-        self.obs.lon = point['lon']
-        self.obs.elev = point['elev']
         self.point = point
 
     def calc_time_from_loc_and_schedule(self, schedule):
         point = self.conf['home']
+        obs = ephem.Observer()
+        obs.lat = point['lat']
+        obs.lon = point['lon']
+        obs.elev = point['elev']
 
         today = datetime.now()
 
-        self.obs.date = today.replace(hour=12, minute=0, second=0)
+        obs.date = today.replace(hour=12, minute=0, second=0)
 
-        self.obs.horizon = str(schedule['horizon'])
+        obs.horizon = str(schedule['horizon'])
         if schedule['when'] == "morning":
-            utc_time = self.obs.previous_rising(ephem.Sun())
+            utc_time = obs.previous_rising(ephem.Sun())
         elif schedule['when'] == "evening":
-            utc_time = self.obs.next_setting(ephem.Sun())
+            utc_time = obs.next_setting(ephem.Sun())
         else:
             raise NameError("no idea when you want to calculate")
         time = ephem.localtime(utc_time)
