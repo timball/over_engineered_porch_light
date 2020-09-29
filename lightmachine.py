@@ -4,6 +4,7 @@ This is the main program that does the work.
 from apscheduler.schedulers.blocking import BlockingScheduler
 from transitions import Machine
 from datetime import datetime, timedelta
+import ephem
 import enum
 import logging
 import secrets
@@ -11,9 +12,7 @@ import os, sys
 import yaml
 
 from utils import set_log_level, load_conf
-from switchmate import SwitchMate, FakeSwitch
-
-Switch = SwitchMate
+from switchmate import SwitchMate
 
 class Light(enum.Enum):
     ON = 1
@@ -22,25 +21,25 @@ class Light(enum.Enum):
     UNKN = 3
 
 
-class SwitchScheduler(Switch):
+class SwitchScheduler(SwitchMate):
     """ this is a scheduler that controls scheduling of an underlying switch """
-    def calc_time_from_loc_and_schedule(self, point, schedule):
-        import ephem
+    def __init__(self, point=None):
+        self.obs = ephem.Observer()
+        self.obs.lat = point['lat']
+        self.obs.lon = point['lon']
+        self.obs.elev = point['elev']
 
-        obs = ephem.Observer()
-        obs.lat = point['lat']
-        obs.lon = point['lon']
-        obs.elev = point['elev']
+    def calc_time_from_loc_and_schedule(self, schedule):
 
         today = datetime.now()
 
-        obs.date = today.replace(hour=12, minute=0, second=0)
+        self.obs.date = today.replace(hour=12, minute=0, second=0)
 
-        obs.horizon = str(schedule['horizon'])
+        self.obs.horizon = str(schedule['horizon'])
         if schedule['when'] == "morning":
-            utc_time = obs.previous_rising(ephem.Sun())
+            utc_time = self.obs.previous_rising(ephem.Sun())
         elif schedule['when'] == "evening":
-            utc_time = obs.next_setting(ephem.Sun())
+            utc_time = self.obs.next_setting(ephem.Sun())
         else:
             raise NameError("no idea when you want to calculate")
         time = ephem.localtime(utc_time)
@@ -62,7 +61,7 @@ class SwitchScheduler(Switch):
             if event == 'off_time':
                 schedule[event]['time'] = self.rand_off_time(val['off_hour'])
             else:
-                schedule[event]['time'] = self.calc_time_from_loc_and_schedule(self.conf['home'], val)
+                schedule[event]['time'] = self.calc_time_from_loc_and_schedule(val)
         return schedule
 
     def scheduler(self, sched):
@@ -80,8 +79,7 @@ class SwitchScheduler(Switch):
                     state = self.switchoff
                 sched.add_job(state, 'date', run_date=timez[run]['time'])
                 logging.info(f"{timez[run]['emoji']} {run}: {timez[run]['time']}")
-
-        sched.print_jobs()
+        logging.info(sched.get_jobs())
 
 class LightMachine(Machine, SwitchScheduler):
     """ test a light switch with a random flipper """
@@ -99,6 +97,7 @@ class LightMachine(Machine, SwitchScheduler):
         else:
             initial_state = Light.OFF
         Machine.__init__(self, states=states, initial=initial_state)
+        SwitchScheduler.__init__(self, point=self.conf['home'])
 
         self.readconf(self.conf)
 
