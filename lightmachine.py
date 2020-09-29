@@ -21,6 +21,9 @@ class Light(enum.Enum):
     BAT = 2
     UNKN = 3
 
+VERIFY_TABLE = {'on': Light.ON,
+                'off': Light.OFF,
+                False: Light.UNKN}
 
 
 class SwitchScheduler():
@@ -123,20 +126,17 @@ class LightMachine(Machine, SwitchScheduler, SwitchMate):
 
     def verify_state(self):
         logging.debug("verify_state()")
-        verify_table = {'on': Light.ON,
-                        'off': Light.OFF,
-                        False: Light.UNKN}
-
         if self.mystery_state == Light.UNKN:
             status = self.status()
 
-            if verify_table[status] == self.state:
+            # XXX wouldn't need VERIFY_TABLE if status & self.state were the same type to verify against
+            if VERIFY_TABLE[status] == self.state:
                 logging.info(f"status is ✅ {status} 💡")
-                self.mystery_state =  verify_table[status]
-            elif verify_table[status] == Light.UNKN:
+                self.mystery_state =  VERIFY_TABLE[status]
+            elif VERIFY_TABLE[status] == Light.UNKN:
                 logging.info("status is ❓")
                 self.mystery_state =  Light.UNKN
-            elif verify_table[status] != self.state:
+            elif VERIFY_TABLE[status] != self.state:
                 logging.info("status is 🚫 toggling 💡")
                 self.toggle()
                 self.mystery_state =  Light.UNKN
