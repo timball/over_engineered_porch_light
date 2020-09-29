@@ -286,24 +286,24 @@ class SwitchMate:
 if __name__ == "__main__":
     import yaml
     import getopt
-    
-    logging.basicConfig(level=logging.WARNING)
+
+    logging.basicConfig(level=logging.INFO)
     conf = dict()
     config = None
     timeout = None
     mac_addr = None
-    
+
     def _print_help():
         print (f"Usage: {sys.argv[0]} option")
         print (f"{sys.argv[0]} [-t|--timeout=seconds] [-c|--conf=config] [-m|--mac_addr=mac_addr] [-h|--help] <scan|status|battery|toggle|on|off|debug>")
-    
-    try: 
+
+    try:
         opts, args = getopt.getopt(sys.argv[1:], "ht:m:c:", ["timeout=", "mac_addr=", "conf="])
     except getopt.GetoptError:
         _print_help()
         sys.exit(2)
 
-    for opt, arg in opts: 
+    for opt, arg in opts:
         if opt in ('-h', '--help'):
             _print_help()
             sys.exit(2)
@@ -313,16 +313,16 @@ if __name__ == "__main__":
             mac_addr = arg
         elif opt in ('-c', '--conf'):
             config = arg
-        
-    if config: 
+
+    if config:
         with open(config) as f:
             conf = yaml.load(f, Loader=yaml.FullLoader)
-    if timeout is not None: 
+    if timeout is not None:
         conf['timeout'] = timeout
     if mac_addr is not None:
         conf['mac_addr'] = mac_addr
 
-    if config is None: 
+    if config is None:
         _print_help()
         sys.exit(2)
 
@@ -333,16 +333,16 @@ if __name__ == "__main__":
         sm = SwitchMate()
         sm.readconf(conf)
         logging.debug(sm)
-        
+
         if   args[0] == "scan":
             logging.debug("scan")
-            sm.scan() 
+            sm.scan()
         elif args[0] == "status":
             logging.debug("status")
-            sm.status()
+            print(sm.status())
         elif args[0] == "battery":
             logging.debug("battery")
-            sm.batterystatus()
+            print(sm.batterystatus())
         elif args[0] == "toggle":
             logging.debug("toggle")
             sm.toggle()
@@ -355,7 +355,7 @@ if __name__ == "__main__":
         elif args[0] == "debug":
             logging.debug("debug")
             sm.debug()
-        else: 
+        else:
             logging.debug("default help")
             _print_help()
             sys.exit(2)
