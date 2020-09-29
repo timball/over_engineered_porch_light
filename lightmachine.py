@@ -15,6 +15,8 @@ from utils import set_log_level, load_conf, info_jobs, synth_off_time, synth_sch
 from switchmate import SwitchMate
 
 
+# XXX maybe what I want is a frozen bidict
+# or better SwitchMate.switchon() should return these instead of a str
 class Light(enum.Enum):
     ON = 1
     OFF = 0
@@ -86,7 +88,8 @@ class SwitchScheduler():
                     state = self.switchoff
                 sched.add_job(state, 'date', run_date=timez[run]['time'])
                 logging.info(f"{timez[run]['emoji']} {run}: {timez[run]['time']}")
-        logging.info(sched.get_jobs())
+        logging.info(info_jobs(sched.get_jobs()))
+
 
 class LightMachine(Machine, SwitchScheduler, SwitchMate):
     """ test a light switch with a random flipper """
@@ -96,7 +99,9 @@ class LightMachine(Machine, SwitchScheduler, SwitchMate):
         self.mystery_state = Light.UNKN
         states = [Light.ON, Light.OFF, Light.BAT]
 
+        # XXX this causes a weirdo hole and indeterminite startup if run in the off_hour hour I guess, I don't super care as verify_state will catch things
         t = self._add_times_to_schedule(self.conf['schedule'])
+        #logging.info(f"__init__ t: {t}") # to debug that weirdo hole
         now = datetime.now()
         if (t['morn_twil']['time'] < now and now < t['post_sunl']['time']) or (t['aft_twil']['time'] < now and now < t['off_time']['time']):
             initial_state = Light.ON
@@ -163,6 +168,8 @@ if __name__ == "__main__":
     logging.info(f"adding scheduler cron 🕙")
     hour, minute = conf['sched_time'].split(':')
     sched.add_job(lm.scheduler, 'cron', hour=hour, minute=minute, args=[sched])
+
+    logging.info(f"add verify_state cron")
     sched.add_job(lm.verify_state, 'cron', minute=conf['verify_cron'])
 
     # determine if a one off scheduler is needed
@@ -170,8 +177,8 @@ if __name__ == "__main__":
     off_time = synth_off_time(conf['schedule']['off_time']['off_hour'])
     sched_time = synth_sched_time(conf['sched_time'])
 
-        logging.info("sched_time < now < off_time gonna add a scheduler 📆 in 2️⃣")
     if (off_time < sched_time) and (sched_time < now or now < off_time):
+        logging.info("📆 sched_time < now < off_time need to add scheduler in 2️⃣ min")
         sched.add_job(lm.scheduler, 'date', run_date=(now+timedelta(minutes=2)), args=[sched])
 
     logging.info(f"start BlockingScheduler()")

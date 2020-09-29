@@ -50,13 +50,14 @@ class SwitchMate:
     """ this is a class to do things w/ the switchmate """
     def __init__(self, conf):
         if os.geteuid() != 0:
-            logging.warning(f"WARN: not root. Won't attempt to elevate()")
+            logging.warning(f"Not root! Won't attempt to elevate()")
             #elevate()
         self.mac_addr = conf['mac_addr']
         self.timeout = conf['timeout']
 
 
     def __del__(self):
+        logging.info(f"disconnecting device")
         self._disconnect()
 
 
