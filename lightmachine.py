@@ -22,15 +22,18 @@ class Light(enum.Enum):
     UNKN = 3
 
 
-class SwitchScheduler(SwitchMate):
+
+class SwitchScheduler():
     """ this is a scheduler that controls scheduling of an underlying switch """
     def __init__(self, point=None):
         self.obs = ephem.Observer()
         self.obs.lat = point['lat']
         self.obs.lon = point['lon']
         self.obs.elev = point['elev']
+        self.point = point
 
     def calc_time_from_loc_and_schedule(self, schedule):
+        point = self.conf['home']
 
         today = datetime.now()
 
@@ -82,13 +85,12 @@ class SwitchScheduler(SwitchMate):
                 logging.info(f"{timez[run]['emoji']} {run}: {timez[run]['time']}")
         logging.info(sched.get_jobs())
 
-class LightMachine(Machine, SwitchScheduler):
+class LightMachine(Machine, SwitchScheduler, SwitchMate):
     """ test a light switch with a random flipper """
 
     def __init__(self, conf):
         self.conf = conf
         self.mystery_state = Light.UNKN
-
         states = [Light.ON, Light.OFF, Light.BAT]
 
         t = self._add_times_to_schedule(self.conf['schedule'])
@@ -97,10 +99,10 @@ class LightMachine(Machine, SwitchScheduler):
             initial_state = Light.ON
         else:
             initial_state = Light.OFF
+
         Machine.__init__(self, states=states, initial=initial_state)
         SwitchScheduler.__init__(self, point=self.conf['home'])
-
-        self.readconf(self.conf)
+        SwitchMate.__init__(self, self.conf)
 
         self.add_transition('on', Light.OFF, Light.ON, before='on_state', after='check_state')
         self.add_transition('off', Light.ON, Light.OFF, before='off_state', after='check_state')

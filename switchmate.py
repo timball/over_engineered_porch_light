@@ -25,7 +25,7 @@ SW_STATE = { "TOGGLE": None,
 class FakeSwitch:
     """ this is a bunk switch """
 
-    def readconf(self, conf):
+    def __init__(self, conf):
         self.conf = conf
         self.state = 'off'
 
@@ -48,8 +48,7 @@ class FakeSwitch:
 
 class SwitchMate:
     """ this is a class to do things w/ the switchmate """
-    def readconf(self, conf):
-        """ this isn't an __init__() bc of weirdo problems I had w/ inheritance """
+    def __init__(self, conf):
         if os.geteuid() != 0:
             logging.warning(f"WARN: not root. Won't attempt to elevate()")
             #elevate()
