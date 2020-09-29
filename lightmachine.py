@@ -11,13 +11,9 @@ import secrets
 import os, sys
 import yaml
 
-from utils import load_conf
+from utils import set_log_level, load_conf, info_jobs, synth_off_time, synth_sched_time
 from switchmate import SwitchMate
 
-def set_log_level(log_level):
-    """ the purpose of this function is to do nothing bc
-        setting log_level is causing confusion sa I debug """
-    return
 
 class Light(enum.Enum):
     ON = 1
@@ -144,7 +140,7 @@ class LightMachine(Machine, SwitchScheduler):
                 self.mystery_state =  Light.UNKN
         else:
             logging.info("✅ status correct. quieting log messages")
-            set_log_level(logging.WARNING) # XXX this might not be working ... just suck it up and accept the log messages
+            set_log_level(logging.WARNING) # XXX this might not be working ... just suck it up and accept the log messages ... could do this via apscheduler.job.pause() but that would require a dance
 
 
 if __name__ == "__main__":
@@ -171,11 +167,10 @@ if __name__ == "__main__":
     sched.add_job(lm.scheduler, 'cron', hour=hour, minute=minute, args=[sched])
     sched.add_job(lm.verify_state, 'cron', minute=conf['verify_cron'])
 
-    # determine if I need to start a scheduler earlier than normal
+    # determine if a one off scheduler is needed
     now = datetime.now()
-    off_time = lm.rand_off_time(conf['schedule']['off_time']['off_hour'])
-    sched_hour,sched_minute = conf['sched_time'].split(':')
-    sched_time = now.replace(hour=int(sched_hour), minute=int(sched_minute))
+    off_time = synth_off_time(conf['schedule']['off_time']['off_hour'])
+    sched_time = synth_sched_time(conf['sched_time'])
 
     if now < off_time or now > sched_time:
         logging.info("sched_time < now < off_time gonna add a scheduler 📆 in 2️⃣")
