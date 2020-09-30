@@ -1,28 +1,27 @@
 # conf.yaml 
 
-mac_addr: <your switchmate mac_addr here>
-logfile: <full path to logfile>
-timeout: 10
+# absolutely must configure settings
+mac_addr: <your switchmate mac_addr here> # bt mac_addr
+logfile: <full path to logfile>  # full path to logfile
+timeout: 10 # for btle communication
 
 # where you light is located
 home:
     lat: '38.889484'
     lon: '-77.035278'
     elev: 9
-    
-# assume rpi is in utc or some other horrid time zone, 
-# but off_time is in your localtime 
-local_tz: "US/Eastern"
-off_time: "22:00:00"
 
-# the time when the scheduler runs sadly this is in 
-# the time zone of the rpi bc god hates everything
+# the time when the scheduler runs
 sched_time: "3:14"
 
 # verify frequency ... args to a cron minute watch
 verify_cron = "*/15"
 
-# this roughly translates to when you want the lights to turn on and off 
+# schedule dictionary ... don't change the name of the times they're hardcoded in LightMachine
+# horizon- https://www.timeanddate.com/astronomy/civil-twilight.html
+# state  - bc of "on" "off" translates to True and False
+# when   - controls if we are using rising or setting calculations
+# time   - eventually this is added to the dictionary as a datetime
 schedule:
   morn_twil:
       emoji: 🌅
@@ -44,10 +43,4 @@ schedule:
       horizon: None
       state: off
       when: evening
-      off_hour: "22:00:00"
-      rand_skew: 60
-
-# some test config setting
-debug: False
-TEST_MAX_RAND: 20
-TEST_RAND_PAD: 5
+      off_hour: "22:00:00" # off_time is in your localtime 
