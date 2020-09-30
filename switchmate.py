@@ -22,29 +22,6 @@ SW_STATE = { "TOGGLE": None,
              "OFF": b'\x00',
              "ON": b'\x01'}
 
-class FakeSwitch:
-    """ this is a bunk switch """
-
-    def __init__(self, conf):
-        self.conf = conf
-        self.state = 'off'
-
-    def switchon(self):
-        print(f"💡 ON")
-        self.state = 'on'
-
-
-    def switchoff(self):
-        print(f"💡 OFF")
-        self.state = 'off'
-
-    def batterystatus(self):
-        print(f"🔋 battery status")
-
-    def status(self):
-        print(f"status: {self.state}")
-        return self.state
-
 
 class SwitchMate:
     """ this is a class to do things w/ the switchmate """
