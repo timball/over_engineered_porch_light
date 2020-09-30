@@ -55,15 +55,11 @@ class SwitchScheduler():
         return time
 
     def rand_off_time(self, off_time_str):
-        import secrets
-
         h,m,s = off_time_str.split(':')
         rand_minute = int(m) + secrets.randbelow(60 - int(m))
 
         now = datetime.now()
-        off_time_adj = now.replace(hour=int(h), minute=rand_minute, second=int(s))
-
-        return off_time_adj
+        return now.replace(hour=int(h), minute=rand_minute, second=int(s))
 
     def _add_times_to_schedule(self, schedule):
         for event, val in schedule.items():
@@ -125,9 +121,9 @@ class LightMachine(Machine, SwitchScheduler, SwitchMate):
 
     def check_state(self):
         self.mystery_state = Light.UNKN
-        logging.warning(f"status: {self.state}")
+        logging.info(f"check_state: {self.state}")
         two_mins = datetime.now() + timedelta(minutes=2)
-        sched.add_job(lm.verify_state, 'date', run_date=two_mins)
+        sched.add_job(self.verify_state, 'date', run_date=two_mins)
 
     def verify_state(self):
         logging.debug("verify_state()")
@@ -173,6 +169,7 @@ if __name__ == "__main__":
     logging.info(f"adding scheduler cron 🕙")
     hour, minute = conf['sched_time'].split(':')
     sched.add_job(lm.scheduler, 'cron', hour=hour, minute=minute, args=[sched])
+    del hour, minute
 
     logging.info(f"add verify_state cron")
     sched.add_job(lm.verify_state, 'cron', minute=conf['verify_cron'])
@@ -185,6 +182,7 @@ if __name__ == "__main__":
     if (off_time < sched_time) and (sched_time < now or now < off_time):
         logging.info("📆 sched_time < now < off_time need to add scheduler in 2️⃣ min")
         sched.add_job(lm.scheduler, 'date', run_date=(now+timedelta(minutes=2)), args=[sched])
+    del now, off_time, sched_time
 
     logging.info(f"start BlockingScheduler()")
     sched.start()
