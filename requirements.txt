@@ -2,3 +2,4 @@ ephem
 transitions
 apscheduler
 pyyaml
+bluepy
