@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import ephem
 import enum
 import logging
+import logging.handlers
 import secrets
 import os, sys
 import yaml
@@ -150,8 +151,12 @@ if __name__ == "__main__":
     dir_path = os.path.dirname(os.path.realpath(__file__))
     conf = load_conf(f"{dir_path}/conf.yaml")
 
+    # create a logging handler that rotates at 3MB
+    handler = logging.handlers.RotatingFileHandler(conf['logfile'],
+                                                   backupCount=3,
+                                                   maxBytes=3*1000*1000)
     logging.basicConfig(level=logging.INFO,
-                        filename=conf['logfile'],
+                        handlers=[handler],
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M')
 
