@@ -164,13 +164,14 @@ if __name__ == "__main__":
     lm = LightMachine(conf)
 
     logging.info(f"making BlockingScheduler()")
-    sched = BlockingScheduler(daemon=True,
-                              'apscheduler.executors.default': {
-                                  'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
-                                  'max_workers': '3'},
-                              'apscheduler.job_defaults.coalesce': 'true',
-                              'apscheduler.job_defaults.max_instances': '3')
-
+    sched = BlockingScheduler({
+        'apscheduler.executors.default': {
+            'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
+            'max_workers': '3'
+        },
+        'apscheduler.job_defaults.coalesce': 'false',
+        'apscheduler.job_defaults.max_instances': '3',
+    }, daemon=True)
     logging.info(f"adding scheduler cron 🕙")
     hour, minute = conf['sched_time'].split(':')
     sched.add_job(lm.scheduler, 'cron', hour=hour, minute=minute, args=[sched])
