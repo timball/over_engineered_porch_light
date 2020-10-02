@@ -165,13 +165,14 @@ if __name__ == "__main__":
 
     logging.info(f"making BlockingScheduler()")
     sched = BlockingScheduler({
-        'apscheduler.executors.default': {
-            'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
-            'max_workers': '3'
-        },
-        'apscheduler.job_defaults.coalesce': 'false',
-        'apscheduler.job_defaults.max_instances': '3',
-    }, daemon=True)
+                            'apscheduler.executors.default': {
+                                'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
+                                'max_workers': conf['max_workers']
+                            },
+                            'apscheduler.job_defaults.coalesce': 'false',
+                            'apscheduler.job_defaults.max_instances': conf['job_max_instances'],
+                        }, daemon=True)
+
     logging.info(f"adding scheduler cron 🕙")
     hour, minute = conf['sched_time'].split(':')
     sched.add_job(lm.scheduler, 'cron', hour=hour, minute=minute, args=[sched])
@@ -184,11 +185,12 @@ if __name__ == "__main__":
     now = datetime.now()
     off_time = synth_off_time(conf['schedule']['off_time']['off_hour'])
     sched_time = synth_sched_time(conf['sched_time'])
+    delay = conf['scheduler_delay']
 
     if (off_time < sched_time) and (sched_time < now or now < off_time):
         logging.info("📆 sched_time < now < off_time need to add scheduler in 2️⃣ min")
-        sched.add_job(lm.scheduler, 'date', run_date=(now+timedelta(minutes=2)), args=[sched])
-    del now, off_time, sched_time
+        sched.add_job(lm.scheduler, 'date', run_date=(now+timedelta(minutes=delay)), args=[sched])
+    del now, off_time, sched_time, delay
 
     logging.info(f"start BlockingScheduler()")
     sched.start()

@@ -5,13 +5,17 @@ mac_addr: <your switchmate mac_addr here> # bt mac_addr
 logfile: <full path to logfile>  # full path to logfile
 timeout: 10 # for btle communication
 
-# where you light is located
+scheduler_delay: 2 # how long to wait (in minutes) to run the first scheduler() if needed
+max_workers: 2 # number of apscheduler executors to keep around ... affect amount of memory resident
+job_max_instances: 3 # apscheduler.job_defaults.max_instances
+
+# where light is located. This is the washington monument
 home:
     lat: '38.889484'
     lon: '-77.035278'
     elev: 9
 
-# the time when the scheduler runs
+# the time when the scheduler runs needs to be AFTER off_time
 sched_time: "3:14"
 
 # verify frequency ... args to a cron minute watch
