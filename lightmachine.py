@@ -84,12 +84,14 @@ class SwitchScheduler():
                 else:
                     state = self.switchoff
                 sched.add_job(state, 'date', run_date=timez[run]['time'])
-                logging.info(f"{timez[run]['emoji']} {run}: {timez[run]['time']}")
+                logging.info(f"{timez[run]['emoji']} {run:8}: {timez[run]['time']}")
         logging.info(info_jobs(sched.get_jobs()))
 
 
 class LightMachine(Machine, SwitchScheduler, SwitchMate):
-    """ test a light switch with a random flipper """
+    """ main object that does all the work
+        it's doing all the __init__ work 
+    """
 
     def __init__(self, conf):
         self.conf = conf
@@ -181,7 +183,7 @@ if __name__ == "__main__":
     logging.info(f"add verify_state cron")
     sched.add_job(lm.verify_state, 'cron', minute=conf['verify_cron'])
 
-    # determine if a one off scheduler is needed
+    # determine if a one off scheduler job is needed
     now = datetime.now()
     off_time = synth_off_time(conf['schedule']['off_time']['off_hour'])
     sched_time = synth_sched_time(conf['sched_time'])
