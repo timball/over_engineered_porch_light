@@ -11,6 +11,7 @@ import logging.handlers
 import secrets
 import os, sys
 import yaml
+import numpy as np
 
 from utils import set_log_level, load_conf, info_jobs, synth_off_time, synth_sched_time
 from switchmate import SwitchMate
@@ -57,10 +58,21 @@ class SwitchScheduler():
 
     def rand_off_time(self, off_time_str):
         h,m,s = off_time_str.split(':')
-        rand_minute = int(m) + secrets.randbelow(60 - int(m))
+        rand_minute = self._random_minute()
 
         now = datetime.now()
         return now.replace(hour=int(h), minute=rand_minute, second=int(s))
+
+    def _random_minute():
+        """ use numpy and generate a minute from a random normal distribution
+            numbers should be bounded 0 < num < 60
+        """
+        mu, sigma, n = 20, 14, 1
+        s = np.random.normal(mu, sigma, n)
+        val = int(round(s[0]))
+        if val < 0 or val > 60:
+            val = _random_minute()
+        return val
 
     def _add_times_to_schedule(self, schedule):
         for event, val in schedule.items():
@@ -84,14 +96,13 @@ class SwitchScheduler():
                 else:
                     state = self.switchoff
                 sched.add_job(state, 'date', run_date=timez[run]['time'])
-                logging.info(f"{timez[run]['emoji']} {run:8}: {timez[run]['time']}")
+                logging.info(f"{timez[run]['emoji']:2} {run:10}: {timez[run]['time']}")
         logging.info(info_jobs(sched.get_jobs()))
 
 
 class LightMachine(Machine, SwitchScheduler, SwitchMate):
     """ main object that does all the work
-        it's doing all the __init__ work 
-    """
+        it's doing all the __init__ work """
 
     def __init__(self, conf):
         self.conf = conf
@@ -190,7 +201,7 @@ if __name__ == "__main__":
     delay = conf['scheduler_delay']
 
     if (off_time < sched_time) and (sched_time < now or now < off_time):
-        logging.info("📆 sched_time < now < off_time need to add scheduler in 2️⃣ min")
+        logging.info("📆 sched_time < now() < off_time adding scheduler in 🕑 2m")
         sched.add_job(lm.scheduler, 'date', run_date=(now+timedelta(minutes=delay)), args=[sched])
     del now, off_time, sched_time, delay
 
