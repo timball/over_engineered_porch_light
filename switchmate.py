@@ -322,13 +322,13 @@ if __name__ == "__main__":
             print(sm.batterystatus())
         elif args[0] == "toggle":
             logging.debug("toggle")
-            sm.toggle()
+            print(sm.toggle())
         elif args[0] == "on":
             logging.debug("on")
-            sm.switchon()
+            print(sm.switchon())
         elif args[0] == "off":
             logging.debug("off")
-            sm.switchoff()
+            print(sm.switchoff())
         elif args[0] == "debug":
             logging.debug("debug")
             sm.debug()
